@@ -27,6 +27,19 @@ a2: Array[java.lang.Object] = Array(abc)
 但是同样可能遇到类似ArrayStore的异常
 
 19.4 Checking variance annotations
+所有违反类型健全包括可赋值的域或数组元素都是不被接受的，包括参数类型
+后面部分略....
 
+19.5 Lower bounds
+class Queue[+T] (private val leading: List[T] , private val trailing: List[T] ) {
+  def enqueue[U >: T](x: U) = new Queue[U] (leading, x :: trailing) // ...
+}
 
-
+U是T的子类，定义T作为U的下限，现在对于enqueue的参数是U，而返回值类型是Queue[U] ；例如 class Fruit有两个子类：Apple 和 Orange，
+如果给 Queue[Apple]  添加一个Queue[Orange]，那么结果将得到 Queue[Fruit]，如果T是一个更加具体的类型 Apple，其结果还是一样，因为
+U仍然是T(Apple)的一个超类
+ variance annotations和 lower bounds在一起良好的协作，是type-driven design的一个很好地例子，接口类型指导了明细的实现和设计
+ 这个观测也是scala喜欢declarationsite variance而不是use-site variance 
+ 
+ 
+ 19.6 Contravariance
