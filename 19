@@ -1,4 +1,32 @@
 19.3 Variance annotations 
 
-Queue是一个trait，不能作为参数类型，而Queue[String] 是一个类型，Queue也是一个type constructor，因为通过添加参数值可构建一个type
+  Queue是一个trait，不能作为参数类型，而Queue[String] 是一个类型，Queue也是一个type constructor，因为通过添加参数值可构建一个type
 Quene也是一个generic trait，即可以定义很多具体类型如：Queue[Int] ，Queue[String] 等....
+Quene的的参数类型拥有不变的-- nonvariant 子类，即quene的不同元素类型之间不存在子类关系：Queue[String] 不能被用作Queue[AnyRef],但是你可以通过在了类型前端增加+符号来使其能拥有子类：
+  trait Queue[+T] { ... }//指明在参数中，类型T的子类是一个协变类型-- nonvariant ，那么以上Queue[String] 就是Queue[AnyRef]的子类了；与协变类型相对的是
+  逆变-  (contravariant ) ，形如：trait Queue[-T] { ... } //如果T是S的子类，那么Queue[S]是Queue[T]的子类
+  所以 因为类型参数是不变的，还是协变，逆变 就叫做parameter’s variance，而在类型参数前的符号=- 就叫做 variance annotations--型变注释
+Variance and arrays
+在java的数组中允许协变类型 但是一下：
+// this is Java
+String[] a1 = { "abc" };
+Object[] a2 = a1;
+a2[0] = new Integer(17);
+String s = a1[0];
+编译通过，在执行中会出现Exception in thread "main" java.lang.ArrayStoreException: 异常。而在Scala中数组的类型之间是不能直接协变的。
+scala> val a1 = Array("abc")  
+a1: Array[java.lang.String] = Array(abc)
+scala> val a2: Array[Any] = a1
+<console>:5: error: type mismatch;
+found : Array[java.lang.String]
+required: Array[Any]
+val a2: Array[Any] = a1
+但是Scala也提供了方案执行类似于java的操作：
+scala> val a2: Array[Object] = a1.asInstanceOf[Array[Object] ]
+a2: Array[java.lang.Object] = Array(abc) 
+但是同样可能遇到类似ArrayStore的异常
+
+19.4 Checking variance annotations
+
+
+
