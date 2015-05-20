@@ -43,3 +43,37 @@ U仍然是T(Apple)的一个超类
  
  
  19.6 Contravariance
+  trait OutputChannel[-T] {
+    def write(x: T)
+  }
+以上例子中定义了逆变类型T，所以OutputChannel[AnyRefs] 是OutputChannel[String] ，的子类，唯一操作就是将Stirng类型参数传给他，但是
+OutputChannel[AnyRefs]也能做同样的事，所以用OutputChannel[AnyRefs] 可以替代OutputChannel[String] ，但是相比之下这种替换并不安全，
+因为替换后的OutputChannel[AnyRefs]，我们可以传递任何对象给他，而如果传递费String类型的[OutputChannel]在运行时则会产生异常
+  covariance and contravariance 混合使用：
+  trait Function1[-S, +T] {
+    def apply(x: S): T
+  }
+  他满足里氏替换原则
+  
+  另外一个例子：
+  class Publication(val title: String)
+class Book(title: String) extends Publication(title)
+object Library {
+val books: Set[Book] =
+  Set(
+  new Book("Programming in Scala"),
+  new Book("Walden")
+  )
+  def printBookList(info: Book => AnyRef) {
+    for (book <- books) println(info(book))//函数info 需要的参数类型是Book,Book指的是传递给函数的参数类型是Book
+  }
+}
+object Customer extends Application {
+  def getTitle(p: Publication): String = p.title
+  Library.printBookList(getTitle) // 传递函数getTitle 给printBookList 方法，但printBookList需要的参数是Book，
+  //而传递的函数的参数为Publication，Book是Publication的子类，所以这里是一个逆变，将超类作为子类传递给函数，这里可能有安全转换的问题
+  //但是这里函数直接是定义在外部，其实现直接依赖于外部实现的参数类型，而外部类型是一个超类。根据里氏替换原则，超类需要的地方，那么子类也一定可以存在
+  //所以Book 能被替换为Pulication
+  
+}
+
