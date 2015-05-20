@@ -76,4 +76,53 @@ object Customer extends Application {
   //所以Book 能被替换为Pulication
   
 }
+图片稍后....
 
+
+19.7 Object private data
+
+class Queue[+T] private (
+private[this] var leading: List[T] ,
+private[this] var trailing: List[T]
+) {
+  private def mirror() =
+  if (leading.isEmpty) {
+    while (!trailing.isEmpty) {
+      leading = trailing.head :: leading
+      trailing = trailing.tail
+    }
+  }
+  def head: T = {
+    mirror()
+    leading.head
+  }
+  def tail: Queue[T] = {
+    mirror()
+    new Queue(leading.tail, trailing)
+  }
+  def enqueue[U >: T](x: U) =
+  new Queue[U] (leading, x :: trailing)
+}
+... 说明略...
+
+19.8 Upper bounds
+
+def orderedMergeSort[T <: Ordered[T] ](xs: List[T] ): List[T] = {
+  def merge(xs: List[T] , ys: List[T] ): List[T] =
+  (xs, ys) match {
+    case (Nil, _) => ys
+    case (_, Nil) => xs
+    case (x :: xs1, y :: ys1) =>
+    if (x < y) x :: merge(xs1, ys)
+    else y :: merge(xs, ys1)
+  }
+  val n = xs.length / 2
+  if (n == 0) xs
+  else {
+    val (ys, zs) = xs splitAt n
+    merge(orderedMergeSort(ys), orderedMergeSort(zs))
+  }
+}
+
+def orderedMergeSort[T <: Ordered[T] ](xs: List[T] ): List[T] = { //中参数T必须是 Ordered[T] 的子类，这里描述了传递参数的上限Ordered[T]
+上限的定义由符号<: 来表示，但是不是最通用的方式，如果排序integer的类型时则不能工作，因为class Int不是 Ordered[Int]的子类.
